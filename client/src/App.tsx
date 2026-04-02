@@ -11,18 +11,14 @@ import ITwins from "@/pages/ITwins";
 import IModels from "@/pages/IModels";
 import Integrations from "@/pages/Integrations";
 
-// Placeholder for new environments
-const EnvironmentPlaceholder = ({ name }: { name: string }) => (
-  <div className="p-8 h-full flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
-    <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mb-6 glow-primary">
-      <span className="text-primary text-4xl font-bold">{name.charAt(0)}</span>
-    </div>
-    <h1 className="text-4xl font-bold tracking-tight mb-4">{name} Environment</h1>
-    <p className="text-muted-foreground max-w-lg text-lg">
-      This dedicated workspace provides specialized tools and workflows for {name.toLowerCase()} teams within the Bentley platform.
-    </p>
-  </div>
-);
+// New Pages
+import DevelopmentEnv from "@/pages/DevelopmentEnv";
+import MarketingEnv from "@/pages/MarketingEnv";
+import AutomationEnv from "@/pages/AutomationEnv";
+import MobileAlarms from "@/pages/MobileAlarms";
+import WebsiteStudio from "@/pages/WebsiteStudio";
+import Infrastructure from "@/pages/Infrastructure";
+import PlatformSettings from "@/pages/PlatformSettings";
 
 const ControlPlanePlaceholder = ({ name }: { name: string }) => (
   <div className="p-8 h-full flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
@@ -40,27 +36,23 @@ function Router() {
       <Route path="/imodels" component={IModels} />
       <Route path="/integrations" component={Integrations} />
       
-      <Route path="/env/development">
-        <EnvironmentPlaceholder name="Development" />
-      </Route>
-      <Route path="/env/marketing">
-        <EnvironmentPlaceholder name="Marketing" />
-      </Route>
-      <Route path="/env/automation">
-        <EnvironmentPlaceholder name="Automation" />
-      </Route>
+      <Route path="/env/development" component={DevelopmentEnv} />
+      <Route path="/env/marketing" component={MarketingEnv} />
+      <Route path="/env/automation" component={AutomationEnv} />
 
+      <Route path="/cp/website" component={WebsiteStudio} />
+      <Route path="/cp/infra" component={Infrastructure} />
+      
       <Route path="/cp/:section">
         {(params) => <ControlPlanePlaceholder name={params.section || 'Section'} />}
       </Route>
 
+      <Route path="/mobile/alarms" component={MobileAlarms} />
       <Route path="/mobile/:section">
         {(params) => <ControlPlanePlaceholder name={`Mobile ${params.section}`} />}
       </Route>
       
-      <Route path="/admin">
-        <ControlPlanePlaceholder name="Platform Settings" />
-      </Route>
+      <Route path="/admin" component={PlatformSettings} />
 
       <Route component={NotFound} />
     </Switch>
