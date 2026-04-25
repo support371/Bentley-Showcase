@@ -1,17 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': 'http://localhost:8787',
-      '/health': 'http://localhost:8787'
+  root: path.resolve(import.meta.dirname, 'client'),
+  resolve: {
+    alias: {
+      '@': path.resolve(import.meta.dirname, 'client', 'src')
     }
   },
   build: {
-    outDir: 'dist',
+    outDir: path.resolve(import.meta.dirname, 'dist', 'public'),
+    emptyOutDir: true,
     chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
@@ -22,5 +23,9 @@ export default defineConfig({
         }
       }
     }
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 5173
   }
 });
