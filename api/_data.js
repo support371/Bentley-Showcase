@@ -86,15 +86,28 @@ export const seed = {
   auditLogs: [{ id: 'log1', action: 'platform.bootstrap', actor: 'system', status: 'ok', ts: new Date().toISOString() }]
 };
 
+function clone(value) { return JSON.parse(JSON.stringify(value)); }
+
+export function store() {
+  if (!globalThis.__gemStore) globalThis.__gemStore = clone(seed);
+  return globalThis.__gemStore;
+}
+
+export function audit(action, actor = 'system', status = 'ok', meta = {}) {
+  const db = store();
+  db.auditLogs.unshift({ id: 'log_' + Date.now().toString(36), action, actor, status, meta, ts: new Date().toISOString() });
+  return db.auditLogs[0];
+}
+
+export function uid(prefix = 'id') { return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
 export function send(res, status, body) {
   res.status(status).setHeader('content-type', 'application/json; charset=utf-8');
   res.setHeader('cache-control', 'no-store');
   return res.end(JSON.stringify(body));
 }
 
-export function role(req) {
-  return req.headers['x-gem-role'] || 'admin';
-}
+export function role(req) { return req.headers['x-gem-role'] || 'admin'; }
 
 export function requireRole(req, res, allowed = ['admin', 'operator']) {
   const current = role(req);
@@ -103,10 +116,6 @@ export function requireRole(req, res, allowed = ['admin', 'operator']) {
     return false;
   }
   return true;
-}
-
-export function entityName(req) {
-  return req.query?.entity || req.url?.split('/').filter(Boolean).pop();
 }
 
 export function parseBody(req) {
