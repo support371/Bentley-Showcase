@@ -4,9 +4,8 @@
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
-    { "source": "/health", "destination": "/api/health" },
-    { "source": "/webhook/telegram", "destination": "/api/webhook/telegram" },
-    { "source": "/webhook/whatsapp", "destination": "/api/webhook/whatsapp" },
+    { "source": "/health", "destination": "/api/status" },
+    { "source": "/webhooks/inbound", "destination": "/api/webhooks/inbound" },
     { "source": "/((?!api/|assets/|favicon.ico).*)", "destination": "/index.html" }
   ],
   "headers": [
