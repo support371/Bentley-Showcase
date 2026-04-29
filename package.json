@@ -1,6 +1,6 @@
 {
   "name": "bentley-showcase-gem-enterprise-saas",
-  "version": "4.0.0",
+  "version": "4.2.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -22,5 +22,5 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": "20.x" }
 }
