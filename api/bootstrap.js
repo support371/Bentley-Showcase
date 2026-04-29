@@ -1,13 +1,24 @@
-import { send, store, audit, projectSummary } from './_data.js';
+import { send, store, audit } from './_data.js';
 
 export default function handler(req, res) {
   const db = store();
-  const projects = db.projects.map((project) => projectSummary(project.id));
   audit('api.bootstrap', 'system', 'ok');
+
+  const counts = {
+    projects: db.projects?.length || 0,
+    tools: db.projectTools?.length || 0,
+    runtimeAssets: db.productionServices?.length || 0,
+    teamMembers: db.teamMembers?.length || 0,
+    integrations: db.integrations?.length || 0,
+    jobs: db.orchestratorJobs?.length || 0,
+    activityLogs: db.activityLogs?.length || 0,
+    auditLogs: db.auditLogs?.length || 0
+  };
+
   return send(res, 200, {
     platform: {
       name: 'GEM Enterprise Platform',
-      version: '4.2.0',
+      version: '4.2.1',
       aiEngine: 'Claude Opus 4.6 + GPT-4o/4.1',
       mode: 'project-operating-system',
       workspace: db.workspace
@@ -29,22 +40,19 @@ export default function handler(req, res) {
     },
     endpoints: {
       status: '/api/status',
-      health: '/api/health',
       bootstrap: '/api/bootstrap',
+      smoke: '/api/smoke',
       projects: '/api/projects',
       entities: '/api/entities?entity=alerts&project_id=p1',
-      catalog: '/api/catalog?project_id=p1',
-      runtime: '/api/runtime?project_id=p1',
-      team: '/api/team?project_id=p1',
       activity: '/api/activity?project_id=p1',
-      actions: '/api/actions',
-      jobs: '/api/jobs?project_id=p1',
-      audit: '/api/audit',
-      itwinModels: '/api/itwin/models?project_id=p1',
+      deployments: '/api/deployments?project_id=p1',
+      integrations: '/api/integrations?project_id=p1',
+      webhook: '/api/webhooks/inbound',
       agentChat: '/api/agent/chat',
-      genesis: '/api/genesis'
+      itwinModels: '/api/itwin/models?project_id=p1'
     },
-    data: db,
-    projectSummaries: projects
+    counts,
+    projects: db.projects,
+    data: db
   });
 }
