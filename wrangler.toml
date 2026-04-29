@@ -1,0 +1,4 @@
+name = "bentley-webpage"
+main = "src/entry.py"
+compatibility_date = "2026-04-29"
+compatibility_flags = ["python_workers"]
