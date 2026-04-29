@@ -18,7 +18,7 @@ export default function handler(req, res) {
   return send(res, 200, {
     platform: {
       name: 'GEM Enterprise Platform',
-      version: '4.2.1',
+      version: '4.2.2',
       aiEngine: 'Claude Opus 4.6 + GPT-4o/4.1',
       mode: 'project-operating-system',
       workspace: db.workspace
@@ -36,18 +36,24 @@ export default function handler(req, res) {
       audit: true,
       digitalTwinMetadata: true,
       contentPipeline: true,
-      agentRouting: true
+      agentRouting: true,
+      webhookIngestion: true
     },
     endpoints: {
       status: '/api/status',
+      health: '/health',
       bootstrap: '/api/bootstrap',
-      smoke: '/api/smoke',
       projects: '/api/projects',
       entities: '/api/entities?entity=alerts&project_id=p1',
       activity: '/api/activity?project_id=p1',
-      deployments: '/api/deployments?project_id=p1',
-      integrations: '/api/integrations?project_id=p1',
-      webhook: '/api/webhooks/inbound',
+      deployments: '/api/entities?entity=deployments&project_id=p1',
+      integrations: '/api/entities?entity=integrations&project_id=p1',
+      runtimeAssets: '/api/entities?entity=runtime&project_id=p1',
+      toolCatalog: '/api/entities?entity=tools&project_id=p1',
+      jobs: '/api/entities?entity=jobs&project_id=p1',
+      content: '/api/entities?entity=content&project_id=p1',
+      webhook: '/api/entities?entity=jobs&operation=webhook&project_id=p1',
+      action: '/api/entities?entity=tools&operation=action&project_id=p1',
       agentChat: '/api/agent/chat',
       itwinModels: '/api/itwin/models?project_id=p1'
     },
