@@ -51,6 +51,24 @@ export default async function handler(req, res) {
     if (!requireRole(req, res, ['admin', 'operator'])) return;
     const body = await parseBody(req);
 
+    if (operation === 'webhook') {
+      const pid = body.project_id || project_id || 'p1';
+      const source = body.source || req.headers['x-gem-source'] || 'webhook';
+      const event = body.event || body.type || 'Inbound webhook';
+      const detail = body.detail || body.message || JSON.stringify(body.payload || body).slice(0, 500);
+      const log = activity(pid, event, detail, body.status || 'success', source, { payload: body.payload || body });
+      const job = body.create_job === false ? null : createEntity('orchestratorJobs', {
+        project_id: pid,
+        task: `${source}:${event}`,
+        classification: 'webhook',
+        executor: source,
+        status: body.job_status || 'queued',
+        payload: body
+      }, 'job');
+      audit('entity.webhook', actor(req), 'ok', { project_id: pid, source, event, job_id: job?.id });
+      return send(res, 202, { received: true, project_id: pid, source, event, activity: log, job });
+    }
+
     if (operation === 'action') {
       const pid = body.project_id || project_id || 'p1';
       const action = body.action || 'run';
