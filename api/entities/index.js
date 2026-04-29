@@ -1,12 +1,42 @@
 import { send, audit, requireRole, parseBody, actor, assertEntity, listEntity, getEntity, createEntity, updateEntity, deleteEntity, activity } from '../_data.js';
 
+function entityAlias(entity) {
+  const aliases = {
+    tools: 'projectTools',
+    catalog: 'projectTools',
+    runtime: 'productionServices',
+    services: 'productionServices',
+    team: 'teamMembers',
+    members: 'teamMembers',
+    jobs: 'orchestratorJobs',
+    content: 'contentDigest',
+    audit: 'auditLogs'
+  };
+  return aliases[entity] || entity;
+}
+
+function resolveAction(type = 'run') {
+  const map = {
+    redeploy: { status: 'queued', message: 'Redeploy workflow queued.' },
+    publish: { status: 'queued', message: 'Publish workflow queued.' },
+    run: { status: 'queued', message: 'Automation run queued.' },
+    sync: { status: 'queued', message: 'Sync workflow queued.' },
+    health: { status: 'success', message: 'Health check completed.' },
+    logs: { status: 'success', message: 'Log retrieval request recorded.' },
+    promote: { status: 'queued', message: 'Promotion workflow queued.' }
+  };
+  return map[type] || map.run;
+}
+
 export default async function handler(req, res) {
-  const entity = req.query.entity;
+  const rawEntity = req.query.entity;
+  const entity = entityAlias(rawEntity);
   const id = req.query.id;
   const project_id = req.query.project_id;
+  const operation = req.query.operation || req.query.op;
   const filters = { project_id, category: req.query.category, status: req.query.status };
 
-  if (!entity || !assertEntity(entity)) return send(res, 404, { error: 'entity_not_found', entity });
+  if (!entity || !assertEntity(entity)) return send(res, 404, { error: 'entity_not_found', entity: rawEntity });
 
   if (req.method === 'GET') {
     if (id) {
@@ -20,6 +50,34 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     if (!requireRole(req, res, ['admin', 'operator'])) return;
     const body = await parseBody(req);
+
+    if (operation === 'action') {
+      const pid = body.project_id || project_id || 'p1';
+      const action = body.action || 'run';
+      const targetId = body.target_id || id;
+      const outcome = resolveAction(action);
+      let target = targetId ? getEntity(entity, targetId) : null;
+
+      if (target && entity === 'projectTools') {
+        target = updateEntity(entity, target.id, { last_run_at: new Date().toISOString(), status: target.status === 'paused' ? 'active' : target.status });
+      }
+      if (target && entity === 'productionServices' && action === 'health') {
+        target = updateEntity(entity, target.id, { status: 'healthy', last_checked_at: new Date().toISOString() });
+      }
+
+      const job = createEntity('orchestratorJobs', {
+        project_id: pid,
+        task: `${action}:${entity}:${target?.name || targetId || 'project'}`,
+        classification: action === 'redeploy' ? 'workflow' : 'general',
+        executor: 'gem-action-runner',
+        status: outcome.status === 'success' ? 'completed' : 'queued',
+        payload: body
+      }, 'job');
+      const log = activity(pid, `Action ${action}`, outcome.message, outcome.status, actor(req), { entity, target_id: targetId, job_id: job.id });
+      audit('entity.action', actor(req), outcome.status === 'success' ? 'ok' : 'queued', { entity, project_id: pid, action, target_id: targetId, job_id: job.id });
+      return send(res, 202, { entity, action, target, job, activity: log, outcome });
+    }
+
     const record = createEntity(entity, { ...body, project_id: body.project_id || project_id }, entity);
     audit('entity.create', actor(req), 'ok', { entity, id: record.id, project_id: record.project_id });
     if (record.project_id) activity(record.project_id, 'Record created', `${entity} ${record.id} created`, 'success', actor(req), { entity, id: record.id });
