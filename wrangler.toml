@@ -2,3 +2,20 @@ name = "bentley-webpage"
 main = "src/entry.py"
 compatibility_date = "2026-04-29"
 compatibility_flags = ["python_workers"]
+
+[vars]
+BACKEND_VERSION = "1.0.0"
+CORS_ORIGINS = "https://bentley-showcase.vercel.app,http://localhost:3000,http://localhost:5173"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bentley_webpage_db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[[queues.producers]]
+binding = "JOB_QUEUE"
+queue = "bentley-jobs"
