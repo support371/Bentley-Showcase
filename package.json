@@ -1,12 +1,14 @@
 {
   "name": "bentley-showcase-gem-enterprise-saas",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "vite preview --host 0.0.0.0 --port 3000"
+    "start": "vite preview --host 0.0.0.0 --port 3000",
+    "guard:architecture": "python3 scripts/architecture_guard.py",
+    "verify": "python3 scripts/architecture_guard.py && vite build"
   },
   "dependencies": {
     "react": "^18.3.1",
