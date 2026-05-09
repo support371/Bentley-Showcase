@@ -7,7 +7,7 @@ name = "bentley-showcase-worker"
 version = "1.0.0"
 description = "Bentley Showcase Enterprise SaaS Backend - Cloudflare Workers + FastAPI"
 readme = "BACKEND.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
   {name = "GEM Cybersecurity", email = "support@bentley-showcase.example"}
@@ -21,13 +21,12 @@ classifiers = [
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Internet :: WWW/HTTP",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "workers >= 1.90",
+  "workers-py >= 1.9.2",
   "fastapi >= 0.104.1",
   "pydantic >= 2.5.0",
   "asgiref >= 3.7.1"
@@ -46,8 +45,8 @@ packages = ["src"]
 
 [tool.black]
 line-length = 120
-target-version = ["py311", "py312"]
-include = '\.pyi?$'
+target-version = ["py312"]
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -65,7 +64,7 @@ exclude = '''
 
 [tool.ruff]
 line-length = 120
-target-version = "py311"
+target-version = "py312"
 select = ["E", "F", "W", "I"]
 ignore = ["E501"]
 
