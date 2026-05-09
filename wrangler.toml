@@ -10,12 +10,26 @@ CORS_ORIGINS = "https://bentley-showcase.vercel.app,http://localhost:3000,http:/
 [[d1_databases]]
 binding = "DB"
 database_name = "bentley_webpage_db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "__D1_DATABASE_ID__"
+preview_database_id = "__D1_PREVIEW_DATABASE_ID__"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "__KV_NAMESPACE_ID__"
+preview_id = "__KV_PREVIEW_NAMESPACE_ID__"
 
 [[queues.producers]]
 binding = "JOB_QUEUE"
 queue = "bentley-jobs"
+
+[[queues.consumers]]
+queue = "bentley-jobs"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+
+[observability]
+enabled = true
+
+[placement]
+mode = "smart"

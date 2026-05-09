@@ -8,7 +8,11 @@
     "build": "vite build",
     "start": "vite preview --host 0.0.0.0 --port 3000",
     "guard:architecture": "python3 scripts/architecture_guard.py",
-    "verify": "python3 scripts/architecture_guard.py && vite build"
+    "validate:backend": "python3 scripts/backend_config_validator.py",
+    "readiness": "python3 scripts/production_readiness_check.py",
+    "render:wrangler": "python3 scripts/render_wrangler.py",
+    "verify": "python3 scripts/architecture_guard.py && python3 scripts/backend_config_validator.py && vite build",
+    "deploy:worker": "python3 scripts/render_wrangler.py && wrangler d1 execute bentley_webpage_db --remote --file=./schema.sql && wrangler deploy"
   },
   "dependencies": {
     "react": "^18.3.1",
