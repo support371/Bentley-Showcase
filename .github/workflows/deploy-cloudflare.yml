@@ -1,0 +1,84 @@
+name: Deploy Cloudflare Backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed_workspace:
+        description: "Seed initial workspace after deploy"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  push:
+    branches: [main]
+    paths:
+      - "src/entry.py"
+      - "schema.sql"
+      - "wrangler.toml"
+      - "pyproject.toml"
+      - "scripts/render_wrangler.py"
+      - ".github/workflows/deploy-cloudflare.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-backend-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Render, validate, migrate, and deploy Worker
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
+      CLOUDFLARE_D1_PREVIEW_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_PREVIEW_DATABASE_ID }}
+      CLOUDFLARE_KV_NAMESPACE_ID: ${{ secrets.CLOUDFLARE_KV_NAMESPACE_ID }}
+      CLOUDFLARE_KV_PREVIEW_NAMESPACE_ID: ${{ secrets.CLOUDFLARE_KV_PREVIEW_NAMESPACE_ID }}
+      SEED_SECRET: ${{ secrets.SEED_SECRET }}
+      WORKER_URL: ${{ vars.WORKER_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm install --package-lock=false
+
+      - name: Render Wrangler configuration from GitHub secrets
+        run: python3 scripts/render_wrangler.py
+
+      - name: Validate backend before deploy
+        run: npm run verify
+
+      - name: Apply D1 schema
+        run: npx wrangler d1 execute bentley_webpage_db --remote --file=./schema.sql
+
+      - name: Deploy Cloudflare Worker
+        run: npx wrangler deploy
+
+      - name: Verify live health endpoint
+        if: env.WORKER_URL != ''
+        run: |
+          curl --fail --silent --show-error "$WORKER_URL/health"
+          curl --fail --silent --show-error "$WORKER_URL/status"
+
+      - name: Seed initial workspace
+        if: github.event_name == 'workflow_dispatch' && inputs.seed_workspace == 'true' && env.WORKER_URL != '' && env.SEED_SECRET != ''
+        run: |
+          curl --fail --silent --show-error -X POST "$WORKER_URL/seed/initial-workspace" \
+            -H "X-Seed-Secret: $SEED_SECRET" \
+            -H "Content-Type: application/json"
