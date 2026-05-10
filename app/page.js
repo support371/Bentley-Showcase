@@ -1,0 +1,1 @@
+export default function Home() { return (<main style={{padding:'2rem',fontFamily:'system-ui'}}><h1>Bentley-Showcase</h1><p>Deployed by Gem Custom App agent.</p></main>); }

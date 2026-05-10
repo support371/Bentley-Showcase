@@ -1,32 +1,17 @@
 {
-  "name": "bentley-showcase-gem-enterprise-saas",
-  "version": "4.2.2",
+  "name": "Bentley-Showcase",
+  "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "start": "vite preview --host 0.0.0.0 --port 3000",
-    "guard:architecture": "python3 scripts/architecture_guard.py",
-    "validate:backend": "python3 scripts/backend_config_validator.py",
-    "readiness": "python3 scripts/production_readiness_check.py",
-    "render:wrangler": "python3 scripts/render_wrangler.py",
-    "verify": "python3 scripts/architecture_guard.py && python3 scripts/backend_config_validator.py && vite build",
-    "deploy:worker": "python3 scripts/render_wrangler.py && wrangler d1 execute bentley_webpage_db --remote --file=./schema.sql && wrangler deploy"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "lucide-react": "^0.511.0",
-    "recharts": "^2.15.4",
-    "three": "^0.176.0"
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
-  "devDependencies": {
-    "typescript": "^5.7.2",
-    "vite": "^6.0.7",
-    "@vitejs/plugin-react": "^4.3.4",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1"
-  },
-  "engines": { "node": "20.x" }
+  "devDependencies": {}
 }

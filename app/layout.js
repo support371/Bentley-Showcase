@@ -1,0 +1,2 @@
+export const metadata = { title: 'Bentley-Showcase', description: 'Built by Gem Custom App' };
+export default function RootLayout({ children }) { return (<html lang="en"><body>{children}</body></html>); }
