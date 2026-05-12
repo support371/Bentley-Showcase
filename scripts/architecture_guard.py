@@ -160,6 +160,7 @@ secret_patterns = [
     re.compile(r"SECRET\s*=\s*['\"]?[A-Za-z0-9_\-]{20,}"),
     re.compile(r"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 ]
+
 scan_extensions = {".js", ".ts", ".tsx", ".py", ".toml", ".md", ".json", ".yml", ".yaml", ".sql"}
 for path in ROOT.rglob("*"):
     if not path.is_file():
@@ -170,6 +171,11 @@ for path in ROOT.rglob("*"):
         continue
     content = path.read_text(encoding="utf-8", errors="ignore")
     if path.name == ".env.example":
+    if path.suffix not in scan_extensions and path.name not in {"wrangler.toml", "package.json"}:
+        continue
+    try:
+        content = path.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
         continue
     for pattern in secret_patterns:
         if pattern.search(content):

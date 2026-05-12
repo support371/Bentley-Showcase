@@ -2,6 +2,8 @@ name: Verify Production Build
 
 on:
   push:
+    branches: [main, backend-development]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -10,7 +12,7 @@ permissions:
 
 jobs:
   verify:
-    name: Verify frontend and worker assets
+    name: Verify frontend, backend, and worker configuration
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,15 +23,29 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Install frontend dependencies
         run: npm install --package-lock=false
+
+      - name: Validate backend configuration
+        run: python3 scripts/backend_config_validator.py
+
+      - name: Run architecture guard
+        run: python3 scripts/architecture_guard.py
 
       - name: Build frontend
         run: npm run build
 
-      - name: Validate Cloudflare Worker files
+      - name: Verify Cloudflare Worker assets
         run: |
           test -f wrangler.toml
           test -f src/entry.py
+          test -f schema.sql
           grep -q 'python_workers' wrangler.toml
           grep -q 'FastAPI' src/entry.py
+          grep -q 'WorkerEntrypoint' src/entry.py
+          grep -q 'VITE_API_BASE_URL' .env.example

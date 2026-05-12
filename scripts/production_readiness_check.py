@@ -22,7 +22,7 @@ required_files = [
     "src/entry.py",
     "schema.sql",
     "BACKEND.md",
-    "CLOUDFLARE_DEPLOY.md",
+    "BACKEND_DEPLOYMENT.md",
     ".env.example",
     "client/src/lib/api.ts",
 ]
